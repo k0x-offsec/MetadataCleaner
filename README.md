@@ -34,13 +34,13 @@ pip install -r requirements.txt
 app.py
 ```
 
-The application will be accessible at http://127.0.0.1:3000.
+The application will be accessible at http://127.0.0.1:8000.
 
 ## Usage
 
 ### Web Interface
 
-1. Navigate to the home page: http://127.0.0.1:X.
+1. Navigate to the home page: http://127.0.0.1:8000.
 
 2. Upload a file through the provided form.
 
@@ -102,7 +102,7 @@ Audio Files: Strips metadata using mutagen.
 Archives: Extracts files, cleans metadata, and re-packages them into a ZIP.
 Configuration
 
-*The application runs on http://0.0.0.0:X by default. Modify the app.run() parameters in app.py to change the host and port.*
+*The application runs on http://0.0.0.0:8000 by default. Modify the app.run() parameters in app.py to change the host and port.*
 
 ## Dependencies
 
