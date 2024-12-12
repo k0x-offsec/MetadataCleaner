@@ -9,6 +9,8 @@ import openpyxl
 import mutagen
 import logging
 from typing import BinaryIO
+import os
+import tempfile
 
 app = Flask(__name__)
 
@@ -57,12 +59,14 @@ def upload_file():
         if file_ext in SUPPORTED_ARCHIVES:
             cleaned_archive = handle_archive(file, file_ext)
             cleaned_archive.seek(0)
-            download_url = url_for('download_file', filename=f"cleaned_{file.filename}")
+            temp_file_path = save_temp_file(cleaned_archive, file.filename)
+            download_url = url_for('download_file', filename=os.path.basename(temp_file_path))
             return jsonify({"message": "File successfully cleaned", "download_url": download_url})
         elif file_ext in SUPPORTED_FILES:
             cleaned_file = remove_metadata(file, file_ext)
             cleaned_file.seek(0)
-            download_url = url_for('download_file', filename=f"cleaned_{file.filename}")
+            temp_file_path = save_temp_file(cleaned_file, file.filename)
+            download_url = url_for('download_file', filename=os.path.basename(temp_file_path))
             return jsonify({"message": "File successfully cleaned", "download_url": download_url})
         else:
             raise ValueError("Unsupported file type")
@@ -76,7 +80,17 @@ def upload_file():
 @app.route("/download/<filename>")
 def download_file(filename):
     """Serve the cleaned file for download."""
-    return send_file(cleaned_file, as_attachment=True, download_name=filename)
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, filename)
+    return send_file(file_path, as_attachment=True, download_name=filename)
+
+def save_temp_file(file: BytesIO, filename: str) -> str:
+    """Save the cleaned file to a temporary directory and return the file path."""
+    temp_dir = tempfile.gettempdir()
+    temp_file_path = os.path.join(temp_dir, f"cleaned_{filename}")
+    with open(temp_file_path, 'wb') as temp_file:
+        temp_file.write(file.getvalue())
+    return temp_file_path
 
 def handle_archive(archive_file: BinaryIO, archive_ext: str) -> BytesIO:
     """Process archive files (ZIP, RAR)."""
