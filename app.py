@@ -140,10 +140,12 @@ def remove_metadata(file: BinaryIO, file_ext: str) -> BytesIO:
 
 def handle_image(file: BinaryIO, cleaned_file: BytesIO) -> None:
     img = Image.open(file)
+    data = list(img.getdata())
     img_no_exif = Image.new(img.mode, img.size)
-    img_no_exif.putdata(list(img.getdata()))
+    img_no_exif.putdata(data)
     img_no_exif.save(cleaned_file, format=img.format)
     img.close()
+    cleaned_file.seek(0)
 
 def handle_pdf(file: BinaryIO, cleaned_file: BytesIO) -> None:
     pdf = pikepdf.open(file)
