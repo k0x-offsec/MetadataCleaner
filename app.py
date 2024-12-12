@@ -76,7 +76,7 @@ def upload_file():
 @app.route("/download/<filename>")
 def download_file(filename):
     """Serve the cleaned file for download."""
-    return send_file(BytesIO(), as_attachment=True, download_name=filename)
+    return send_file(cleaned_file, as_attachment=True, download_name=filename)
 
 def handle_archive(archive_file: BinaryIO, archive_ext: str) -> BytesIO:
     """Process archive files (ZIP, RAR)."""
@@ -140,9 +140,8 @@ def remove_metadata(file: BinaryIO, file_ext: str) -> BytesIO:
 
 def handle_image(file: BinaryIO, cleaned_file: BytesIO) -> None:
     img = Image.open(file)
-    data = list(img.getdata())
     img_no_exif = Image.new(img.mode, img.size)
-    img_no_exif.putdata(data)
+    img_no_exif.putdata(list(img.getdata()))
     img_no_exif.save(cleaned_file, format=img.format)
     img.close()
     cleaned_file.seek(0)
@@ -166,4 +165,4 @@ def handle_audio(file: BinaryIO, cleaned_file: BytesIO) -> None:
     audio.save(cleaned_file)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0",port=8000)
+    app.run(debug=True, host="0.0.0.0", port=8000)
